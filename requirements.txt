@@ -1,0 +1,6 @@
+pandas
+yfinance
+google-generativeai
+jquants-api-client
+line-bot-sdk
+feedparser
