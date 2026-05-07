@@ -4,7 +4,7 @@ import sys
 
 import feedparser
 import yfinance as yf
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 from linebot.v3.messaging import (
@@ -15,7 +15,7 @@ from linebot.v3.messaging import (
     TextMessage,
 )
 
-load_dotenv()
+# load_dotenv()
 client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 line_config = Configuration(access_token=os.environ.get("LINE_CHANNEL_ACCESS_TOKEN"))
 LINE_USER_ID = os.environ.get("LINE_USER_ID")
