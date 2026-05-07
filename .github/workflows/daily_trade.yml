@@ -21,7 +21,7 @@ jobs:
           python-version: "3.9"
       - name: Install dependencies
         run: |
-          pip install pandas yfinance google-generativeai jquants-api-client line-bot-sdk feedparser
+          pip install -r requirements.txt
 
       # 日本株（月〜金）
       - name: Japan Stock Analysis
