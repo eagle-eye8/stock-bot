@@ -21,11 +21,7 @@ jobs:
           python-version: "3.9"
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          # 競合の原因となる既存のgoogleライブラリを一度アンインストール
-          pip uninstall -y google google-cloud-core google-cloud-aiplatform
-          # その後、改めてrequirements.txtから強制インストール
-          pip install --force-reinstall -r requirements.txt
+          pip install -r requirements.txt
 
       # 日本株（月〜金）
       - name: Japan Stock Analysis
