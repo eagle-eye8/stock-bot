@@ -1,7 +1,7 @@
 python-dotenv
 pandas
 yfinance
-google-generativeai
+google-genai
 jquants-api-client
 line-bot-sdk
 feedparser
