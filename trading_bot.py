@@ -2,17 +2,19 @@ import datetime
 import os
 import sys
 import traceback
+
 # from dotenv import load_dotenv
 import feedparser
 import yfinance as yf
 from google import genai
 from linebot.v3.messaging import (
     ApiClient,
+    BroadcastRequest,
     Configuration,
     MessagingApi,
-    PushMessageRequest,
     TextMessage,
 )
+
 # load_dotenv()
 # ==========================================
 # 環境変数チェック
@@ -45,13 +47,12 @@ if not LINE_USER_ID:
 
 client = genai.Client(api_key=GEMINI_API_KEY)
 
-line_config = Configuration(
-    access_token=LINE_CHANNEL_ACCESS_TOKEN
-)
+line_config = Configuration(access_token=LINE_CHANNEL_ACCESS_TOKEN)
 
 # ==========================================
 # データ収集
 # ==========================================
+
 
 def get_japan_stock_data():
     """日本株データ取得"""
@@ -99,9 +100,7 @@ def get_japan_stock_data():
             chg = (last / df["Close"].iloc[-2] - 1) * 100
 
             volat = (
-                (df["High"].iloc[-1] - df["Low"].iloc[-1])
-                / df["Open"].iloc[-1]
-                * 100
+                (df["High"].iloc[-1] - df["Low"].iloc[-1]) / df["Open"].iloc[-1] * 100
             )
 
             val = (last * df["Volume"].iloc[-1]) / 10**8
@@ -152,11 +151,7 @@ def get_us_stock_data():
             last = df["Close"].iloc[-1]
             chg = (last / df["Close"].iloc[-2] - 1) * 100
 
-            results.append(
-                f"{name}({ticker}): "
-                f"${last:.1f} "
-                f"({chg:+.1f}%)"
-            )
+            results.append(f"{name}({ticker}): " f"${last:.1f} " f"({chg:+.1f}%)")
 
         except Exception as e:
             print(f"❌ 米国株取得エラー: {ticker}")
@@ -180,10 +175,7 @@ def get_weekend_news():
 
         feed = feedparser.parse(url)
 
-        news = [
-            f"・{e.title}"
-            for e in feed.entries[:10]
-        ]
+        news = [f"・{e.title}" for e in feed.entries[:10]]
 
         return "【最新トピック】\n" + "\n".join(news)
 
@@ -196,6 +188,7 @@ def get_weekend_news():
 # ==========================================
 # AI解析
 # ==========================================
+
 
 def run_analysis(mode_name, ctx, details):
 
@@ -222,7 +215,7 @@ def run_analysis(mode_name, ctx, details):
 
 # 指示
 
-1. 絵文字を多用
+1. 絵文字を多用して3000文字以内でまとめて
 2. 米国市場と日本市場の連動性を分析
 3. 個別銘柄を深掘り
 4. デイトレ・スイング戦略を提示
@@ -286,6 +279,7 @@ def run_analysis(mode_name, ctx, details):
 # LINE送信
 # ==========================================
 
+
 def send_line(msg):
 
     print("=" * 60)
@@ -306,14 +300,7 @@ def send_line(msg):
 
             line_bot_api = MessagingApi(api_client)
 
-            line_bot_api.push_message(
-                PushMessageRequest(
-                    to=LINE_USER_ID,
-                    messages=[
-                        TextMessage(text=msg)
-                    ]
-                )
-            )
+            line_bot_api.broadcast(BroadcastRequest(messages=[TextMessage(text=msg)]))
 
         print("✅ LINE送信完了")
 
@@ -332,6 +319,7 @@ def send_line(msg):
 # メイン処理
 # ==========================================
 
+
 def main():
 
     print("=" * 60)
@@ -340,11 +328,7 @@ def main():
 
     mode_arg = sys.argv[1] if len(sys.argv) > 1 else "JP"
 
-    jst_now = datetime.datetime.now(
-        datetime.timezone(
-            datetime.timedelta(hours=9)
-        )
-    )
+    jst_now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9)))
 
     now_str = jst_now.strftime("%Y/%m/%d %H:%M")
 
@@ -381,11 +365,7 @@ def main():
                 print(f"⚠️ データ不足: {name}")
                 continue
 
-            pct = (
-                d["Close"].iloc[-1]
-                / d["Close"].iloc[-2]
-                - 1
-            ) * 100
+            pct = (d["Close"].iloc[-1] / d["Close"].iloc[-2] - 1) * 100
 
             ctx += f"{name}:{pct:+.1f}% "
 
@@ -437,11 +417,7 @@ def main():
     # LINE送信
     # ==========================================
 
-    full_msg = (
-        f"【{title}】\n"
-        f"配信時刻: {now_str}(JST)\n\n"
-        f"{analysis}"
-    )
+    full_msg = f"【{title}】\n" f"配信時刻: {now_str}(JST)\n\n" f"{analysis}"
 
     send_line(full_msg)
 
